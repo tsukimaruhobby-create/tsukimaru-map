@@ -58,7 +58,12 @@ return new Response(
     <html>
       <body>
         <script>
-          window.parent.postMessage(${JSON.stringify(message)}, '*');
+          // window.location.origin を使用することで、
+          // 開発環境(localhost)でも本番URLでも、自動的に正しい宛先へ送信されます。
+          window.parent.postMessage(
+            ${JSON.stringify(message)}, 
+            window.location.origin
+          );
         </script>
       </body>
     </html>
