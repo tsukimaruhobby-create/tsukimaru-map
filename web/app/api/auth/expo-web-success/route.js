@@ -55,22 +55,24 @@ return new Response(
 
   return new Response(
     `
-    <html>
-      <body>
-        <script>
-          // window.location.origin を使用することで、
-          // 開発環境(localhost)でも本番URLでも、自動的に正しい宛先へ送信されます。
-          window.parent.postMessage(
-            ${JSON.stringify(message)}, 
-            window.location.origin
-          );
-        </script>
-      </body>
-    </html>
-    `,
-    {
-      headers: { 'Content-Type': 'text/html' },
-    }
-  );
+  <html>
+    <body>
+      <script>
+        (function () {
+          const message = ${JSON.stringify(message)};
+
+          // 親ウィンドウが存在する場合のみ送信
+          if (window.parent) {
+            window.parent.postMessage(message, '*');
+          }
+        })();
+      </script>
+    </body>
+  </html>
+  `,
+  {
+    headers: { 'Content-Type': 'text/html' },
+  }
+);
 }
 
