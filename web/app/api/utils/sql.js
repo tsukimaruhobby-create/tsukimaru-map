@@ -1,27 +1,23 @@
+// 月丸マップ/web/app/api/utils/sql.ts
+import { neon, NeonQueryFunction } from '@neondatabase/serverless';
+
 /**
- * DB接続用ユーティリティ
- * Neonの接続URLを環境変数から取得して接続
- * もし設定されていなければエラーを投げる
+ * データベース接続文字列が未設定の場合のフォールバック
  */
-import { neon } from '@neondatabase/serverless';
+const NullishQueryFunction = (() => {
+  const errorFn = () => {
+    throw new Error(
+      'DATABASE_URL が設定されていません。`.env.local` またはデプロイ先の環境変数を確認してください。'
+    );
+  };
+  // neon の戻り値である NeonQueryFunction の型に合わせるためのダミー設定
+  errorFn.transaction = () => { throw new Error('DATABASE_URL is missing'); };
+  return errorFn as unknown as NeonQueryFunction<false, false>;
+})();
 
-// DATABASE_URL が設定されていない場合のエラー関数
-const NullishQueryFunction = () => {
-  throw new Error(
-    'No database connection string was provided to `neon()`. ' +
-    'Perhaps process.env.DATABASE_URL has not been set'
-  );
-};
-
-// トランザクション用も同様にエラー
-NullishQueryFunction.transaction = () => {
-  throw new Error(
-    'No database connection string was provided to `neon()`. ' +
-    'Perhaps process.env.DATABASE_URL has not been set'
-  );
-};
-
-// 環境変数があればNeon接続、なければエラー
-const sql = process.env.DATABASE_URL ? neon(process.env.DATABASE_URL) : NullishQueryFunction;
+// 環境変数があれば接続、なければエラーを投げる
+const sql: NeonQueryFunction<false, false> = process.env.DATABASE_URL 
+  ? neon(process.env.DATABASE_URL) 
+  : NullishQueryFunction;
 
 export default sql;
