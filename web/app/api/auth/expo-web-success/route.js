@@ -22,14 +22,15 @@ export async function GET(request: Request) {
 
   // Unauthorized
   if (!decodedJwt) {
-    return new Response(
+return new Response(
       `
       <html>
         <body>
           <script>
+            // セキュリティのため、送信先を自分のサイトのドメインに限定します
             window.parent.postMessage(
               { type: 'AUTH_ERROR', error: 'Unauthorized' },
-              '*'
+              window.location.origin
             );
           </script>
         </body>
