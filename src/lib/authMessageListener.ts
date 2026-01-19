@@ -16,7 +16,7 @@ type AuthErrorMessage = {
 };
 
 // 受け取る可能性のあるデータの型を柔軟にしておく
-type AuthMessage = AuthSuccessMessage | AuthErrorMessage | any;
+type AuthMessage = AuthSuccessMessage | AuthErrorMessage | unknown;
 
 type Options = {
   allowedOrigins: string[];
