@@ -1,21 +1,25 @@
-// 月丸マップ/web/app/api/utils/sql.ts
 import { neon, NeonQueryFunction } from '@neondatabase/serverless';
 
 /**
- * データベース接続文字列が未設定の場合のフォールバック
+ * データベース接続設定
+ * Neonの接続文字列は環境変数 DATABASE_URL から取得します。
  */
+
+// 設定がない場合にエラーを投げるためのダミー関数
 const NullishQueryFunction = (() => {
   const errorFn = () => {
     throw new Error(
-      'DATABASE_URL が設定されていません。`.env.local` またはデプロイ先の環境変数を確認してください。'
+      'DATABASE_URL が設定されていません。`.env.local` または Vercel の環境変数を確認してください。'
     );
   };
-  // neon の戻り値である NeonQueryFunction の型に合わせるためのダミー設定
   errorFn.transaction = () => { throw new Error('DATABASE_URL is missing'); };
   return errorFn as unknown as NeonQueryFunction<false, false>;
 })();
 
-// 環境変数があれば接続、なければエラーを投げる
+/**
+ * SQLを安全に実行するユーティリティ関数
+ * 使い方: const rows = await sql("SELECT * FROM posts WHERE id = $1", [id]);
+ */
 const sql: NeonQueryFunction<false, false> = process.env.DATABASE_URL 
   ? neon(process.env.DATABASE_URL) 
   : NullishQueryFunction;
